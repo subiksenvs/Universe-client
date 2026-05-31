@@ -18,17 +18,18 @@ export function useWebRTC(userInfo) {
   const socketRef = useRef(null);
   const localStreamRef = useRef(null);
   const pendingCandidates = useRef([]);
+  const facingModeRef = useRef('user');
 
   const initializeMedia = async () => {
     let stream = localStreamRef.current;
     if (!stream) {
       try {
         try {
-          stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facingModeRef.current }, audio: true });
         } catch (e1) {
           console.warn("Failed to get both video and audio. Trying video only.", e1);
           try {
-            stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facingModeRef.current } });
           } catch (e2) {
             console.warn("Failed to get video. Trying audio only.", e2);
             stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -261,6 +262,36 @@ export function useWebRTC(userInfo) {
     }
   };
 
+  const toggleCamera = async () => {
+    facingModeRef.current = facingModeRef.current === 'user' ? 'environment' : 'user';
+    if (localStreamRef.current) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: facingModeRef.current } 
+        });
+        const newVideoTrack = stream.getVideoTracks()[0];
+        
+        const oldVideoTrack = localStreamRef.current.getVideoTracks()[0];
+        if (oldVideoTrack) oldVideoTrack.stop();
+        
+        localStreamRef.current.removeTrack(oldVideoTrack);
+        localStreamRef.current.addTrack(newVideoTrack);
+        
+        setLocalStream(new MediaStream(localStreamRef.current.getTracks()));
+        
+        if (peerConnection.current) {
+          const sender = peerConnection.current.getSenders().find(s => s.track && s.track.kind === 'video');
+          if (sender) {
+            sender.replaceTrack(newVideoTrack);
+          }
+        }
+      } catch (e) {
+        console.error("Failed to switch camera", e);
+        facingModeRef.current = facingModeRef.current === 'user' ? 'environment' : 'user'; // Revert on fail
+      }
+    }
+  };
+
   return {
     localStream,
     remoteStream,
@@ -269,6 +300,7 @@ export function useWebRTC(userInfo) {
     partnerInfo,
     startSearching,
     stopSearching,
-    sendMessage
+    sendMessage,
+    toggleCamera
   };
 }

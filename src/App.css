@@ -219,7 +219,7 @@ select option {
 
 @media (max-width: 768px) {
   .video-grid {
-    flex-direction: row;
+    flex-direction: column;
   }
   .video-chat-container {
     flex: 1;
