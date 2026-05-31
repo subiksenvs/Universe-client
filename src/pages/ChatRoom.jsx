@@ -35,7 +35,7 @@ export default function ChatRoom() {
     <div className="app-container">
       <header>
         <div className="logo" style={{ cursor: 'pointer' }} onClick={handleLeave}>
-          <img src="/logo.gif" alt="Logo" className="header-logo-img" style={{ width: 50, height: 50, objectFit: 'contain' }} />
+          <img src="/logo.png" alt="Logo" className="header-logo-img" style={{ width: 50, height: 50, objectFit: 'contain' }} />
           Universe <span className="hide-on-mobile" style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-muted)' }}>| Video Chat</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
