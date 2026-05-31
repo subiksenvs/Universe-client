@@ -23,7 +23,7 @@ export default function VideoChat({ localStream, remoteStream, status, partnerIn
         <div className="video-wrapper glass-panel">
           {!remoteStream && (
             <div className="placeholder">
-              <img src="/logo.gif" alt="Logo" className="placeholder-logo" />
+              <img src="/logo.png" alt="Logo" className="placeholder-logo animated-logo" />
               <p>{status === 'idle' ? 'Ready to connect' : 'Waiting for stranger...'}</p>
             </div>
           )}

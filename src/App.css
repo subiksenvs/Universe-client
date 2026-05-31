@@ -259,3 +259,13 @@ select option {
     padding: 0.15rem 0.4rem;
   }
 }
+
+@keyframes premium-pulse {
+  0% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.2)); opacity: 0.8; }
+  50% { transform: scale(1.05); filter: drop-shadow(0 0 25px rgba(0, 229, 255, 0.8)); opacity: 1; }
+  100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.2)); opacity: 0.8; }
+}
+
+.animated-logo {
+  animation: premium-pulse 2.5s infinite ease-in-out;
+}
