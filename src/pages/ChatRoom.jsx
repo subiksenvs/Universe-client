@@ -23,8 +23,7 @@ export default function ChatRoom() {
     partnerInfo,
     startSearching,
     stopSearching,
-    sendMessage,
-    toggleCamera
+    sendMessage
   } = useWebRTC(userInfo);
 
   const handleLeave = () => {
@@ -57,7 +56,6 @@ export default function ChatRoom() {
           partnerInfo={partnerInfo}
           startSearching={startSearching}
           stopSearching={stopSearching}
-          toggleCamera={toggleCamera}
         />
         <ChatBox 
           messages={messages}

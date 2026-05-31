@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { FiVideo, FiVideoOff, FiSkipForward, FiSquare, FiRefreshCcw } from 'react-icons/fi';
+import { FiVideo, FiVideoOff, FiSkipForward, FiSquare } from 'react-icons/fi';
 
-export default function VideoChat({ localStream, remoteStream, status, partnerInfo, startSearching, stopSearching, toggleCamera }) {
+export default function VideoChat({ localStream, remoteStream, status, partnerInfo, startSearching, stopSearching }) {
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
 
@@ -40,17 +40,7 @@ export default function VideoChat({ localStream, remoteStream, status, partnerIn
               <p>Camera inactive</p>
             </div>
           )}
-          {localStream && (
-             <button 
-               className="btn" 
-               onClick={toggleCamera} 
-               style={{ position: 'absolute', top: '1rem', right: '1rem', zIndex: 4, background: 'rgba(0,0,0,0.5)', color: 'white', padding: '0.5rem', borderRadius: '50%' }}
-               title="Flip Camera"
-             >
-               <FiRefreshCcw size={18} />
-             </button>
-          )}
-          <video ref={localVideoRef} autoPlay playsInline muted style={{ display: localStream ? 'block' : 'none', transform: 'scaleX(-1)' }} />
+          <video ref={localVideoRef} autoPlay playsInline muted style={{ display: localStream ? 'block' : 'none' }} />
           <div className="video-label" style={{ zIndex: 3 }}>You</div>
         </div>
       </div>
