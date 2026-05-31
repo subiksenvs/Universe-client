@@ -149,8 +149,8 @@ const styles = {
     gap: '1rem',
   },
   logoImg: {
-    width: '80px',
-    height: '80px',
+    width: '140px',
+    height: '140px',
     objectFit: 'contain',
   },
   main: {

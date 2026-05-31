@@ -35,8 +35,8 @@
 }
 
 .placeholder-logo {
-  width: 120px;
-  height: 120px;
+  width: 180px;
+  height: 180px;
   object-fit: contain;
   opacity: 0.6;
 }
@@ -52,7 +52,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   z-index: 2;
 }
 
@@ -238,8 +238,8 @@ select option {
 
 @media (max-width: 768px) {
   .placeholder-logo {
-    width: 60px;
-    height: 60px;
+    width: 100px;
+    height: 100px;
   }
   .placeholder {
     gap: 0.5rem;

@@ -54,7 +54,15 @@ export function useWebRTC(userInfo) {
 
     initializeMedia();
 
+    const handleBeforeUnload = () => {
+      if (currentRoom.current) {
+        newSocket.emit('leave_room', currentRoom.current);
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
     return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
       newSocket.disconnect();
     };
   }, []);
@@ -144,6 +152,9 @@ export function useWebRTC(userInfo) {
 
     socket.on('partner_left', () => {
       setMessages(prev => [...prev, { text: 'Stranger has disconnected. Searching for a new one...', sender: 'system' }]);
+      if (currentRoom.current) {
+        socket.emit('leave_room', currentRoom.current);
+      }
       cleanupConnection();
       setStatus('waiting');
       socket.emit('join_queue', userInfo);
