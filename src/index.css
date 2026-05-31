@@ -150,3 +150,19 @@ header {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary-hover);
 }
+
+@media (max-width: 768px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+  .header-logo-img {
+    width: 32px !important;
+    height: 32px !important;
+  }
+  .status-indicator {
+    font-size: 0.8rem;
+  }
+  .leave-btn {
+    padding: 0.4rem 0.75rem !important;
+  }
+}

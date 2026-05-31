@@ -35,15 +35,15 @@ export default function ChatRoom() {
     <div className="app-container">
       <header>
         <div className="logo" style={{ cursor: 'pointer' }} onClick={handleLeave}>
-          <img src="/logo.png" alt="Logo" style={{ width: 50, height: 50, objectFit: 'contain' }} />
-          Universe <span style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-muted)' }}>| Video Chat</span>
+          <img src="/logo.gif" alt="Logo" className="header-logo-img" style={{ width: 50, height: 50, objectFit: 'contain' }} />
+          Universe <span className="hide-on-mobile" style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-muted)' }}>| Video Chat</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ color: status === 'connected' ? 'var(--success)' : 'var(--text-muted)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div className="status-indicator" style={{ color: status === 'connected' ? 'var(--success)' : 'var(--text-muted)' }}>
             {status === 'connected' ? '● Connected' : status === 'waiting' ? '● Waiting' : '○ Offline'}
           </div>
-          <button className="btn" style={{ background: 'rgba(255,255,255,0.1)', color: 'white', padding: '0.5rem 1rem' }} onClick={handleLeave}>
-            <FiArrowLeft /> Leave
+          <button className="btn leave-btn" style={{ background: 'rgba(255,255,255,0.1)', color: 'white', padding: '0.5rem 1rem' }} onClick={handleLeave}>
+            <FiArrowLeft /> <span className="hide-on-mobile">Leave</span>
           </button>
         </div>
       </header>
