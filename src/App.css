@@ -235,3 +235,27 @@ select option {
     font-size: 0.9rem;
   }
 }
+
+@media (max-width: 768px) {
+  .placeholder-logo {
+    width: 60px;
+    height: 60px;
+  }
+  .placeholder {
+    gap: 0.5rem;
+  }
+  .placeholder p {
+    font-size: 0.75rem;
+    text-align: center;
+    padding: 0 0.25rem;
+  }
+  .placeholder-icon {
+    font-size: 2rem;
+  }
+  .video-label {
+    bottom: 0.5rem;
+    left: 0.5rem;
+    font-size: 0.7rem;
+    padding: 0.15rem 0.4rem;
+  }
+}

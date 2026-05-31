@@ -143,9 +143,10 @@ export function useWebRTC(userInfo) {
     });
 
     socket.on('partner_left', () => {
-      setMessages(prev => [...prev, { text: 'Stranger has disconnected.', sender: 'system' }]);
+      setMessages(prev => [...prev, { text: 'Stranger has disconnected. Searching for a new one...', sender: 'system' }]);
       cleanupConnection();
-      setStatus('idle');
+      setStatus('waiting');
+      socket.emit('join_queue', userInfo);
     });
 
     return () => {
