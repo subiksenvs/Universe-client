@@ -68,9 +68,10 @@ export default function ChatBox({ messages, sendMessage, status }) {
         <button 
           type="submit" 
           className="btn btn-primary"
+          style={{ width: '48px', height: '48px', borderRadius: '50%', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
           disabled={!input.trim()}
         >
-          <FiSend />
+          <FiSend size={20} style={{ marginLeft: '-2px', marginTop: '2px' }} />
         </button>
       </form>
     </div>

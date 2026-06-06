@@ -134,7 +134,6 @@ export default function Home() {
     <div className="home-container" style={styles.container}>
       <header style={styles.header}>
         <div className="logo" style={styles.logo}>
-          <img src="/logo.png" alt="Universe Logo" style={styles.logoImg} />
           Universe
         </div>
         {currentUser ? (

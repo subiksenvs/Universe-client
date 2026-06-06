@@ -44,7 +44,7 @@
   background: #111;
 }
 
-.video-wrapper.local video.mirrored {
+.video-wrapper video.mirrored {
   transform: scaleX(-1);
 }
 

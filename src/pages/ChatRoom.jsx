@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useWebRTC } from '../hooks/useWebRTC';
 import VideoChat from '../components/VideoChat';
 import ChatBox from '../components/ChatBox';
-import { FiArrowLeft } from 'react-icons/fi';
+import { FiArrowLeft, FiUser } from 'react-icons/fi';
 
 export default function ChatRoom() {
   const navigate = useNavigate();
@@ -74,7 +74,6 @@ export default function ChatRoom() {
     <div className="app-container">
       <header>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }} onClick={handleLeave}>
-          <img src="/logo.png" alt="Logo" className="header-logo-img" style={{ width: 40, height: 40, objectFit: 'contain' }} />
           <span style={{ fontSize: 'clamp(1.2rem, 4vw, 2rem)', fontWeight: 800, background: 'linear-gradient(to right, var(--primary), var(--secondary))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Universe</span>
           <span className="hide-on-mobile" style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-muted)', textTransform: 'capitalize' }}>| {topic} Room</span>
         </div>
@@ -93,13 +92,13 @@ export default function ChatRoom() {
           {partnerInfo && status === 'connected' && (
             <button
               className="btn"
-              style={{ background: 'rgba(255,255,255,0.1)', color: 'white', padding: '0.4rem 0.75rem', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
+              style={{ background: 'rgba(255,255,255,0.1)', color: 'white', padding: '0.4rem 0.6rem', fontSize: '0.85rem', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
               onClick={() => setShowProfile(true)}
             >
-              <span className="hide-on-mobile">View </span>Profile
+              <FiUser /> <span className="hide-on-mobile">View Profile</span>
             </button>
           )}
-          <button className="btn leave-btn" style={{ background: 'rgba(255,255,255,0.1)', color: 'white', padding: '0.4rem 0.75rem' }} onClick={handleLeave}>
+          <button className="btn leave-btn" style={{ background: 'rgba(255,255,255,0.1)', color: 'white', padding: '0.4rem 0.6rem' }} onClick={handleLeave}>
             <FiArrowLeft /> <span className="hide-on-mobile">Leave</span>
           </button>
         </div>
