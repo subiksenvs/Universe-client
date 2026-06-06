@@ -43,7 +43,7 @@ export default function ChatRoom() {
 
   const handleSendFriendRequest = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_SIGNALING_SERVER || (window.location.hostname === 'localhost' ? 'http://localhost:4000' : `http://${window.location.hostname}:4000`);
+      const apiUrl = import.meta.env.VITE_SIGNALING_SERVER || 'http://localhost:4000';
       const response = await fetch(`${apiUrl}/api/friends/request`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -141,24 +141,14 @@ export default function ChatRoom() {
               <span>{partnerInfo.gender}</span>
             </div>
 
-            {userInfo.friends && userInfo.friends.includes(partnerInfo.id) ? (
-              <button 
-                className="btn btn-primary" 
-                style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', background: 'var(--glass-border)', cursor: 'not-allowed' }}
-                disabled
-              >
-                Already Friends
-              </button>
-            ) : (
-              <button 
-                className="btn btn-primary" 
-                style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', background: requestSent ? 'var(--success)' : 'var(--primary)' }}
-                onClick={handleSendFriendRequest}
-                disabled={requestSent}
-              >
-                {requestSent ? 'Request Sent!' : 'Add Friend'}
-              </button>
-            )}
+            <button 
+              className="btn btn-primary" 
+              style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', background: requestSent ? 'var(--success)' : 'var(--primary)' }}
+              onClick={handleSendFriendRequest}
+              disabled={requestSent}
+            >
+              {requestSent ? 'Request Sent!' : 'Add Friend'}
+            </button>
           </div>
         </div>
       )}

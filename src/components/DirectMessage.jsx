@@ -1,36 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FiSend, FiX, FiUserMinus, FiVideo } from 'react-icons/fi';
+import { FiSend, FiX } from 'react-icons/fi';
 import { io } from 'socket.io-client';
 
-export default function DirectMessage({ userInfo, friend, onClose, onCallFriend, globalSocket }) {
+export default function DirectMessage({ userInfo, friend, onClose }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
-
-  const handleRemoveFriend = async () => {
-    try {
-      const apiUrl = import.meta.env.VITE_SIGNALING_SERVER || (window.location.hostname === 'localhost' ? 'http://localhost:4000' : `http://${window.location.hostname}:4000`);
-      const res = await fetch(`${apiUrl}/api/friends/remove`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fromId: userInfo.id, toId: friend.id })
-      });
-      if (res.ok) {
-        onClose(); 
-        window.location.reload(); 
-      } else {
-        alert('Failed to remove friend. The database connection might be temporarily down.');
-      }
-    } catch(e) { 
-      console.error(e);
-      alert('Network error when trying to remove friend.');
-    }
-  };
 
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_SIGNALING_SERVER || (window.location.hostname === 'localhost' ? 'http://localhost:4000' : `http://${window.location.hostname}:4000`);
+        const apiUrl = import.meta.env.VITE_SIGNALING_SERVER || 'http://localhost:4000';
         const response = await fetch(`${apiUrl}/api/messages/${userInfo.id}/${friend.id}`);
         if (response.ok) {
           const history = await response.json();
@@ -43,25 +24,25 @@ export default function DirectMessage({ userInfo, friend, onClose, onCallFriend,
     };
     fetchHistory();
 
-    if (!globalSocket) return;
+    const socketUrl = import.meta.env.VITE_SIGNALING_SERVER || 'http://localhost:4000';
+    const socket = io(socketUrl);
+    socketRef.current = socket;
 
-    const handleReceiveMessage = (msg) => {
+    socket.emit('register', userInfo.id);
+
+    socket.on('receive_direct_message', (msg) => {
       if (msg.sender === friend.id || msg.receiver === friend.id) {
         setMessages(prev => [...prev, msg]);
         setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
       }
-    };
+    });
 
-    globalSocket.on('receive_direct_message', handleReceiveMessage);
-
-    return () => {
-      globalSocket.off('receive_direct_message', handleReceiveMessage);
-    };
-  }, [userInfo.id, friend.id, globalSocket]);
+    return () => socket.disconnect();
+  }, [userInfo.id, friend.id]);
 
   const handleSend = (e) => {
     e.preventDefault();
-    if (!input.trim() || !globalSocket) return;
+    if (!input.trim()) return;
 
     const msgData = {
       senderId: userInfo.id,
@@ -70,7 +51,7 @@ export default function DirectMessage({ userInfo, friend, onClose, onCallFriend,
       timestamp: Date.now()
     };
 
-    globalSocket.emit('send_direct_message', msgData);
+    socketRef.current.emit('send_direct_message', msgData);
     
     // Optimistically add to UI
     const newMsg = { id: Date.now().toString(), sender: userInfo.id, receiver: friend.id, text: input, timestamp: Date.now() };
@@ -92,17 +73,9 @@ export default function DirectMessage({ userInfo, friend, onClose, onCallFriend,
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{friend.status === 'online' ? 'Online' : 'Offline'}</span>
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <button className="btn" style={{ background: 'var(--primary)', color: 'white', padding: '0.5rem', borderRadius: '50%' }} onClick={onCallFriend} title="Video Call">
-            <FiVideo size={18} />
-          </button>
-          <button className="btn" style={{ background: 'rgba(255,0,0,0.2)', color: 'var(--danger)', padding: '0.5rem', borderRadius: '50%' }} onClick={handleRemoveFriend} title="Remove Friend">
-            <FiUserMinus size={18} />
-          </button>
-          <button className="btn" style={{ background: 'transparent', color: 'white', padding: '0.5rem' }} onClick={onClose}>
-            <FiX size={20} />
-          </button>
-        </div>
+        <button className="btn" style={{ background: 'transparent', color: 'white', padding: '0.5rem' }} onClick={onClose}>
+          <FiX size={20} />
+        </button>
       </header>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
