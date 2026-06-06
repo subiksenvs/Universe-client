@@ -6,6 +6,7 @@ import ChatRoom from './pages/ChatRoom';
 import Profile from './pages/Profile';
 import Rooms from './pages/Rooms';
 import FriendsPage from './pages/FriendsPage';
+import PrivateCall from './pages/PrivateCall';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <Route path="/chat" element={<ChatRoom />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/friends" element={<FriendsPage />} />
+      <Route path="/private-call/:roomId" element={<PrivateCall />} />
     </Routes>
   );
 }

@@ -141,14 +141,24 @@ export default function ChatRoom() {
               <span>{partnerInfo.gender}</span>
             </div>
 
-            <button 
-              className="btn btn-primary" 
-              style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', background: requestSent ? 'var(--success)' : 'var(--primary)' }}
-              onClick={handleSendFriendRequest}
-              disabled={requestSent}
-            >
-              {requestSent ? 'Request Sent!' : 'Add Friend'}
-            </button>
+            {userInfo.friends && userInfo.friends.includes(partnerInfo.id) ? (
+              <button 
+                className="btn btn-primary" 
+                style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', background: 'var(--glass-border)', cursor: 'not-allowed' }}
+                disabled
+              >
+                Already Friends
+              </button>
+            ) : (
+              <button 
+                className="btn btn-primary" 
+                style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', background: requestSent ? 'var(--success)' : 'var(--primary)' }}
+                onClick={handleSendFriendRequest}
+                disabled={requestSent}
+              >
+                {requestSent ? 'Request Sent!' : 'Add Friend'}
+              </button>
+            )}
           </div>
         </div>
       )}

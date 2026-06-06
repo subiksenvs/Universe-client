@@ -40,7 +40,7 @@ export default function VideoChat({ localStream, remoteStream, status, partnerIn
               </p>
             </div>
           )}
-          <video ref={remoteVideoRef} autoPlay playsInline className="mirrored" style={{ display: remoteStream ? 'block' : 'none' }} />
+          <video ref={remoteVideoRef} autoPlay playsInline style={{ display: remoteStream ? 'block' : 'none' }} />
           <div className="video-label" style={{ zIndex: 3 }}>
             {status === 'waiting' ? 'Stranger (Waiting...)' : partnerInfo ? `${partnerInfo.name}, ${partnerInfo.age} (${partnerInfo.gender.charAt(0)})` : 'Stranger'}
           </div>

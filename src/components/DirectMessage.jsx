@@ -1,12 +1,27 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FiSend, FiX } from 'react-icons/fi';
+import { FiSend, FiX, FiUserMinus, FiVideo } from 'react-icons/fi';
 import { io } from 'socket.io-client';
 
-export default function DirectMessage({ userInfo, friend, onClose }) {
+export default function DirectMessage({ userInfo, friend, onClose, onCallFriend }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
+
+  const handleRemoveFriend = async () => {
+    try {
+      const apiUrl = import.meta.env.VITE_SIGNALING_SERVER || 'http://localhost:4000';
+      const res = await fetch(`${apiUrl}/api/friends/remove`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fromId: userInfo.id, toId: friend.id })
+      });
+      if (res.ok) {
+        onClose(); 
+        window.location.reload(); 
+      }
+    } catch(e) { console.error(e); }
+  };
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -73,9 +88,17 @@ export default function DirectMessage({ userInfo, friend, onClose }) {
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{friend.status === 'online' ? 'Online' : 'Offline'}</span>
           </div>
         </div>
-        <button className="btn" style={{ background: 'transparent', color: 'white', padding: '0.5rem' }} onClick={onClose}>
-          <FiX size={20} />
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <button className="btn" style={{ background: 'var(--primary)', color: 'white', padding: '0.5rem', borderRadius: '50%' }} onClick={onCallFriend} title="Video Call">
+            <FiVideo size={18} />
+          </button>
+          <button className="btn" style={{ background: 'rgba(255,0,0,0.2)', color: 'var(--danger)', padding: '0.5rem', borderRadius: '50%' }} onClick={handleRemoveFriend} title="Remove Friend">
+            <FiUserMinus size={18} />
+          </button>
+          <button className="btn" style={{ background: 'transparent', color: 'white', padding: '0.5rem' }} onClick={onClose}>
+            <FiX size={20} />
+          </button>
+        </div>
       </header>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
