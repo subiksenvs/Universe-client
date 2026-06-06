@@ -130,10 +130,11 @@ export default function Home() {
           Universe
         </div>
         {currentUser ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-            {error && <span style={{ color: '#ff4d4d', fontSize: '0.85rem', width: '100%', textAlign: 'right' }}>{error}</span>}
-            <div className="glass-panel" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.4rem 0.75rem', borderRadius: '3rem', border: '1px solid rgba(255,255,255,0.18)', boxShadow: '0 0 0 1px rgba(0,229,255,0.08), inset 0 1px 0 rgba(255,255,255,0.07)' }}>
-              <div 
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            {error && <span style={{ color: '#ff4d4d', fontSize: '0.8rem' }}>{error}</span>}
+            {/* Avatar + Logout pill */}
+            <div className="glass-panel" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.35rem 0.6rem', borderRadius: '3rem', border: '1px solid rgba(255,255,255,0.18)', boxShadow: '0 0 0 1px rgba(0,229,255,0.08)' }}>
+              <div
                 onClick={() => {
                   if (currentUser.isGuest) {
                     setError("Guests cannot edit profiles. Please create an account!");
@@ -141,34 +142,31 @@ export default function Home() {
                     navigate('/profile');
                   }
                 }}
-                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer' }}
               >
-                <div 
+                <div
                   className="header-avatar"
-                  style={{ width: '36px', height: '36px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.2)', background: currentUser.avatar ? `url(${currentUser.avatar}) center/cover no-repeat` : 'linear-gradient(135deg, var(--primary), var(--secondary))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', fontWeight: 'bold', position: 'relative', overflow: 'hidden', flexShrink: 0 }}
+                  style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.2)', background: currentUser.avatar ? `url(${currentUser.avatar}) center/cover no-repeat` : 'linear-gradient(135deg, var(--primary), var(--secondary))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem', fontWeight: 'bold', position: 'relative', overflow: 'hidden', flexShrink: 0 }}
                 >
                   {!currentUser.avatar && currentUser.name.charAt(0).toUpperCase()}
-                  <div className="avatar-hover-overlay" style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity 0.2s', fontSize: '1rem' }}>
-                    <FiUser />
+                  <div className="avatar-hover-overlay" style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity 0.2s' }}>
+                    <FiUser size={14} />
                   </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                  <span style={{ fontWeight: 600, lineHeight: 1.2, fontSize: '0.9rem', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentUser.name}</span>
-                  {currentUser.isGuest && <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Guest</span>}
-                </div>
+                <span className="hide-on-mobile" style={{ fontWeight: 600, fontSize: '0.88rem', maxWidth: '90px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentUser.name}</span>
               </div>
 
-              <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.1)' }}></div>
+              <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.12)' }}></div>
 
-              <button className="btn" style={{ background: 'transparent', color: '#ff4d4d', border: 'none', padding: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }} onClick={handleLogout}>
-                <FiLogOut size={18} /> <span className="hide-on-mobile" style={{ fontWeight: 600 }}>Log Out</span>
+              <button className="btn" style={{ background: 'transparent', color: '#ff4d4d', border: 'none', padding: '0.2rem', display: 'flex', alignItems: 'center' }} onClick={handleLogout}>
+                <FiLogOut size={16} />
               </button>
             </div>
-            
+
             {!currentUser.isGuest && (
-              <button 
-                className="btn btn-primary" 
-                style={{ padding: '0.4rem 1rem', borderRadius: '2rem', fontWeight: 600, fontSize: '0.9rem' }} 
+              <button
+                className="btn btn-primary"
+                style={{ padding: '0.35rem 0.8rem', borderRadius: '2rem', fontWeight: 600, fontSize: '0.85rem', whiteSpace: 'nowrap' }}
                 onClick={() => navigate('/friends')}
               >
                 Friends
@@ -176,11 +174,11 @@ export default function Home() {
             )}
           </div>
         ) : (
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <button className="btn" style={{ background: 'transparent', border: '1px solid var(--primary)', color: 'var(--primary)', padding: '0.5rem 1rem' }} onClick={() => setAuthMode('login')}>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button className="btn" style={{ background: 'transparent', border: '1px solid var(--primary)', color: 'var(--primary)', padding: '0.4rem 0.8rem', fontSize: '0.9rem' }} onClick={() => setAuthMode('login')}>
               Log In
             </button>
-            <button className="btn btn-primary" style={{ padding: '0.5rem 1rem' }} onClick={() => setAuthMode('signup')}>
+            <button className="btn btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.9rem' }} onClick={() => setAuthMode('signup')}>
               Sign Up
             </button>
           </div>
