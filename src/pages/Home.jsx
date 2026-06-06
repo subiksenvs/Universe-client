@@ -132,7 +132,7 @@ export default function Home() {
         {currentUser ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
             {error && <span style={{ color: '#ff4d4d', fontSize: '0.85rem', width: '100%', textAlign: 'right' }}>{error}</span>}
-            <div className="glass-panel" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.4rem 0.75rem', borderRadius: '3rem', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <div className="glass-panel" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.4rem 0.75rem', borderRadius: '3rem', border: '1px solid rgba(255,255,255,0.18)', boxShadow: '0 0 0 1px rgba(0,229,255,0.08), inset 0 1px 0 rgba(255,255,255,0.07)' }}>
               <div 
                 onClick={() => {
                   if (currentUser.isGuest) {

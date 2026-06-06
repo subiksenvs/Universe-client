@@ -32,7 +32,17 @@ export default function Rooms() {
           </button>
           <h2>Explore Rooms</h2>
         </div>
-        <div className="status-indicator" style={{ color: 'var(--text-muted)' }}>
+        <div style={{ 
+          display: 'flex', alignItems: 'center', gap: '0.5rem',
+          padding: '0.35rem 0.85rem', borderRadius: '2rem',
+          border: '1px solid rgba(255,255,255,0.15)',
+          background: 'rgba(255,255,255,0.05)',
+          color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 500
+        }}>
+          {currentUser.avatar 
+            ? <img src={currentUser.avatar} alt="" style={{ width: '22px', height: '22px', borderRadius: '50%', objectFit: 'cover' }} />
+            : <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary), var(--secondary))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 700 }}>{currentUser.name.charAt(0).toUpperCase()}</div>
+          }
           {currentUser.name}
         </div>
       </header>
