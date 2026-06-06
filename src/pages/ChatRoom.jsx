@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useWebRTC } from '../hooks/useWebRTC';
 import VideoChat from '../components/VideoChat';
 import ChatBox from '../components/ChatBox';
@@ -7,6 +7,8 @@ import { FiArrowLeft } from 'react-icons/fi';
 
 export default function ChatRoom() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const topic = searchParams.get('topic') || 'global';
   const userInfo = JSON.parse(sessionStorage.getItem('userInfo'));
 
   React.useEffect(() => {
@@ -15,16 +17,53 @@ export default function ChatRoom() {
     }
   }, [userInfo, navigate]);
 
+  const [showProfile, setShowProfile] = React.useState(false);
+  const [requestSent, setRequestSent] = React.useState(false);
+
   const {
+    socket,
     localStream,
     remoteStream,
     status,
     messages,
     partnerInfo,
+    hasMultipleCameras,
+    isFrontCamera,
     startSearching,
     stopSearching,
-    sendMessage
-  } = useWebRTC(userInfo);
+    sendMessage,
+    flipCamera
+  } = useWebRTC(userInfo, topic);
+
+  React.useEffect(() => {
+    // Reset state when partner changes
+    setShowProfile(false);
+    setRequestSent(false);
+  }, [partnerInfo]);
+
+  const handleSendFriendRequest = async () => {
+    try {
+      const apiUrl = import.meta.env.VITE_SIGNALING_SERVER || 'http://localhost:4000';
+      const response = await fetch(`${apiUrl}/api/friends/request`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fromId: userInfo.id, toId: partnerInfo.id })
+      });
+      if (response.ok) {
+        setRequestSent(true);
+        if (socket) {
+          socket.emit('send_friend_request', { fromUser: userInfo, toId: partnerInfo.id });
+        }
+      } else {
+        const data = await response.json();
+        if (data.error === 'Already friends' || data.error === 'Request already sent') {
+          setRequestSent(true);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const handleLeave = () => {
     stopSearching();
@@ -34,13 +73,22 @@ export default function ChatRoom() {
   return (
     <div className="app-container">
       <header>
-        <div className="logo" style={{ cursor: 'pointer' }} onClick={handleLeave}>
-          <img src="/logo.png" alt="Logo" className="header-logo-img" style={{ width: 75, height: 75, objectFit: 'contain' }} />
-          Universe <span className="hide-on-mobile" style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-muted)' }}>| Video Chat</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }} onClick={handleLeave}>
+          <img src="/logo.png" alt="Logo" className="header-logo-img" style={{ width: 50, height: 50, objectFit: 'contain' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span style={{ fontSize: '2rem', fontWeight: 800, background: 'linear-gradient(to right, var(--primary), var(--secondary))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Universe</span>
+            <span className="hide-on-mobile" style={{ fontSize: '1.25rem', fontWeight: 500, color: 'var(--text-muted)', textTransform: 'capitalize', marginTop: '0.4rem' }}>| {topic} Room</span>
+          </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <div className="status-indicator" style={{ color: status === 'connected' ? 'var(--success)' : 'var(--text-muted)' }}>
-            {status === 'connected' ? '● Connected' : status === 'waiting' ? '● Waiting' : '○ Offline'}
+          <div className="status-indicator" style={{ 
+            color: status === 'connected' ? 'var(--success)' : status === 'waiting' ? '#f59e0b' : 'var(--danger)',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.3rem'
+          }}>
+            {status === 'connected' ? '● Connected' : status === 'waiting' ? '● Waiting...' : '● Offline'}
           </div>
           <button className="btn leave-btn" style={{ background: 'rgba(255,255,255,0.1)', color: 'white', padding: '0.5rem 1rem' }} onClick={handleLeave}>
             <FiArrowLeft /> <span className="hide-on-mobile">Leave</span>
@@ -54,15 +102,55 @@ export default function ChatRoom() {
           remoteStream={remoteStream}
           status={status}
           partnerInfo={partnerInfo}
+          hasMultipleCameras={hasMultipleCameras}
+          isFrontCamera={isFrontCamera}
           startSearching={startSearching}
           stopSearching={stopSearching}
+          flipCamera={flipCamera}
         />
         <ChatBox 
           messages={messages}
           sendMessage={sendMessage}
           status={status}
         />
+        {partnerInfo && status === 'connected' && (
+          <div style={{ position: 'absolute', top: '15px', right: '15px', zIndex: 10 }}>
+            <button className="btn" style={{ background: 'rgba(0,0,0,0.6)', color: 'white', padding: '0.5rem 1rem', fontSize: '0.9rem', backdropFilter: 'blur(5px)' }} onClick={() => setShowProfile(true)}>
+              View Profile
+            </button>
+          </div>
+        )}
       </main>
+
+      {showProfile && partnerInfo && (
+        <div className="modal-overlay" style={{ zIndex: 1000 }}>
+          <div className="modal-content glass-panel" style={{ textAlign: 'center', width: '90%', maxWidth: '350px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', marginBottom: '1rem' }}>
+              <button style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer' }} onClick={() => setShowProfile(false)}>×</button>
+            </div>
+            
+            <div style={{ width: '120px', height: '120px', borderRadius: '50%', background: partnerInfo.avatar ? `url(${partnerInfo.avatar}) center/cover no-repeat` : '#333', marginBottom: '1rem', border: '4px solid var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem', fontWeight: 'bold' }}>
+              {!partnerInfo.avatar && partnerInfo.name.charAt(0).toUpperCase()}
+            </div>
+            
+            <h2 style={{ marginBottom: '0.5rem', fontSize: '1.8rem' }}>{partnerInfo.name}</h2>
+            <div style={{ display: 'flex', gap: '0.5rem', color: 'var(--text-muted)', marginBottom: '2rem', fontSize: '1rem' }}>
+              <span>{partnerInfo.age} years old</span>
+              <span>•</span>
+              <span>{partnerInfo.gender}</span>
+            </div>
+
+            <button 
+              className="btn btn-primary" 
+              style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', background: requestSent ? 'var(--success)' : 'var(--primary)' }}
+              onClick={handleSendFriendRequest}
+              disabled={requestSent}
+            >
+              {requestSent ? 'Request Sent!' : 'Add Friend'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

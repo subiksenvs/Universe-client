@@ -1,18 +1,125 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiVideo, FiUsers, FiGlobe } from 'react-icons/fi';
+import { FiVideo, FiUsers, FiGlobe, FiUser, FiLogOut } from 'react-icons/fi';
 
 export default function Home() {
   const navigate = useNavigate();
-  const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({ name: '', age: '', gender: '' });
+  const [authMode, setAuthMode] = useState('none');
+  const [formData, setFormData] = useState({ email: '', password: '', name: '', age: '', gender: '' });
+  const [error, setError] = useState('');
+  const [currentUser, setCurrentUser] = useState(() => {
+    const stored = sessionStorage.getItem('userInfo');
+    return stored ? JSON.parse(stored) : null;
+  });
 
-  const handleJoin = (e) => {
+  const handleLogout = () => {
+    sessionStorage.removeItem('userInfo');
+    setCurrentUser(null);
+  };
+
+  const handleAuth = async (e) => {
     e.preventDefault();
-    if (formData.name && formData.age && formData.gender) {
-      sessionStorage.setItem('userInfo', JSON.stringify(formData));
-      navigate('/chat');
+    setError('');
+
+    if (authMode === 'guest') {
+      if (formData.name && formData.age && formData.gender) {
+        const guestInfo = {
+          name: formData.name, age: formData.age, gender: formData.gender, isGuest: true
+        };
+        sessionStorage.setItem('userInfo', JSON.stringify(guestInfo));
+        setCurrentUser(guestInfo);
+        setAuthMode('none');
+      } else {
+        setError("Please fill out all fields.");
+      }
+      return;
     }
+
+    try {
+      const endpoint = authMode === 'login' ? '/api/login' : '/api/signup';
+      const apiUrl = import.meta.env.VITE_SIGNALING_SERVER || 'http://localhost:4000';
+      
+      const response = await fetch(`${apiUrl}${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Authentication failed');
+      }
+
+      sessionStorage.setItem('userInfo', JSON.stringify(data));
+      setCurrentUser(data);
+      setAuthMode('none');
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const renderModal = () => {
+    if (authMode === 'none') return null;
+
+    return (
+      <div className="modal-overlay">
+        <div className="modal-content">
+          <h2>
+            {authMode === 'login' && 'Welcome Back'}
+            {authMode === 'signup' && 'Create Account'}
+            {authMode === 'guest' && 'Guest Profile'}
+          </h2>
+          
+          {error && <div style={{ color: '#ff4d4d', textAlign: 'center', background: 'rgba(255,0,0,0.1)', padding: '0.5rem', borderRadius: '0.5rem' }}>{error}</div>}
+
+          <form onSubmit={handleAuth} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            
+            {(authMode === 'login' || authMode === 'signup') && (
+              <>
+                <div className="form-group">
+                  <label>Username or Email</label>
+                  <input type="text" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} placeholder="you@example.com or Username" />
+                </div>
+                <div className="form-group">
+                  <label>Password</label>
+                  <input type="password" required value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} placeholder="••••••••" />
+                </div>
+              </>
+            )}
+
+            {(authMode === 'signup' || authMode === 'guest') && (
+              <>
+                <div className="form-group">
+                  <label>Username</label>
+                  <input type="text" required maxLength="20" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} placeholder="Your Username" />
+                </div>
+                <div className="form-group">
+                  <label>Age</label>
+                  <input type="number" required min="13" max="100" value={formData.age} onChange={(e) => setFormData({...formData, age: e.target.value})} placeholder="e.g. 21" />
+                </div>
+                <div className="form-group">
+                  <label>Gender</label>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    {['Male', 'Female', 'Other'].map(g => (
+                      <div key={g} onClick={() => setFormData({...formData, gender: g})} style={{ flex: 1, padding: '0.75rem', textAlign: 'center', borderRadius: '0.5rem', cursor: 'pointer', border: '1px solid', borderColor: formData.gender === g ? 'var(--primary)' : 'var(--glass-border)', background: formData.gender === g ? 'rgba(0, 229, 255, 0.2)' : 'rgba(0,0,0,0.3)', transition: 'all 0.2s', color: 'white', fontWeight: formData.gender === g ? 600 : 400 }}>
+                        {g}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+              <button type="button" className="btn" style={{ flex: 1, background: 'rgba(255,255,255,0.1)', color: 'white' }} onClick={() => {setAuthMode('none'); setError('');}}>Cancel</button>
+              <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
+                {authMode === 'login' ? 'Log In' : authMode === 'signup' ? 'Sign Up' : 'Join as Guest'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -22,6 +129,63 @@ export default function Home() {
           <img src="/logo.png" alt="Universe Logo" style={styles.logoImg} />
           Universe
         </div>
+        {currentUser ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            {error && <span style={{ color: '#ff4d4d', fontSize: '0.9rem' }}>{error}</span>}
+            <div className="glass-panel" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.5rem 1rem', borderRadius: '3rem', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <div 
+                onClick={() => {
+                  if (currentUser.isGuest) {
+                    setError("Guests cannot edit profiles. Please create an account!");
+                  } else {
+                    navigate('/profile');
+                  }
+                }}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}
+              >
+                <div 
+                  className="header-avatar"
+                  style={{ width: '40px', height: '40px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.2)', background: currentUser.avatar ? `url(${currentUser.avatar}) center/cover no-repeat` : 'linear-gradient(135deg, var(--primary), var(--secondary))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 'bold', position: 'relative', overflow: 'hidden' }}
+                >
+                  {!currentUser.avatar && currentUser.name.charAt(0).toUpperCase()}
+                  
+                  <div className="avatar-hover-overlay" style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity 0.2s', fontSize: '1rem' }}>
+                    <FiUser />
+                  </div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                  <span style={{ fontWeight: 600, lineHeight: 1.2 }}>{currentUser.name}</span>
+                  {currentUser.isGuest && <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Guest</span>}
+                </div>
+              </div>
+
+              <div style={{ width: '1px', height: '30px', background: 'rgba(255,255,255,0.1)' }}></div>
+
+              <button className="btn" style={{ background: 'transparent', color: '#ff4d4d', border: 'none', padding: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={handleLogout}>
+                <FiLogOut size={20} /> <span className="hide-on-mobile" style={{ fontWeight: 600 }}>Log Out</span>
+              </button>
+            </div>
+            
+            {!currentUser.isGuest && (
+              <button 
+                className="btn btn-primary" 
+                style={{ padding: '0.5rem 1.5rem', borderRadius: '2rem', fontWeight: 600 }} 
+                onClick={() => navigate('/friends')}
+              >
+                Friends
+              </button>
+            )}
+          </div>
+        ) : (
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <button className="btn" style={{ background: 'transparent', border: '1px solid var(--primary)', color: 'var(--primary)' }} onClick={() => setAuthMode('login')}>
+              Log In
+            </button>
+            <button className="btn btn-primary hide-on-mobile" onClick={() => setAuthMode('signup')}>
+              Sign Up
+            </button>
+          </div>
+        )}
       </header>
       
       <main style={styles.main}>
@@ -48,156 +212,39 @@ export default function Home() {
           </div>
         </div>
 
-        <button 
-          className="btn btn-primary" 
-          style={styles.ctaButton}
-          onClick={() => setShowModal(true)}
-        >
-          <FiVideo /> Enter Video Chat
-        </button>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', marginTop: '2rem' }}>
+          {currentUser ? (
+            <button className="btn btn-primary" style={{ ...styles.ctaButton, padding: '1.5rem 4rem', fontSize: '1.5rem' }} onClick={() => navigate('/rooms')}>
+              Enter Universe
+            </button>
+          ) : (
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <button className="btn btn-primary" style={{ ...styles.ctaButton, padding: '1.5rem 4rem', fontSize: '1.5rem' }} onClick={() => setAuthMode('signup')}>
+                Start Chatting
+              </button>
+              <button className="btn" style={{ ...styles.ctaButton, background: 'transparent', border: '2px solid var(--primary)', color: 'var(--primary)', padding: '1.5rem 4rem', fontSize: '1.5rem' }} onClick={() => setAuthMode('guest')}>
+                Enter as Guest
+              </button>
+            </div>
+          )}
+        </div>
       </main>
 
-      {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h2>Profile Setup</h2>
-            <p style={{ color: 'var(--text-muted)', textAlign: 'center', marginBottom: '1rem' }}>
-              Tell others a bit about yourself before chatting.
-            </p>
-            <form onSubmit={handleJoin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div className="form-group">
-                <label>Name</label>
-                <input 
-                  type="text" 
-                  required 
-                  maxLength="20"
-                  value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  placeholder="Your Name"
-                />
-              </div>
-              <div className="form-group">
-                <label>Age</label>
-                <input 
-                  type="number" 
-                  required 
-                  min="13" 
-                  max="100"
-                  value={formData.age}
-                  onChange={(e) => setFormData({...formData, age: e.target.value})}
-                  placeholder="e.g. 21"
-                />
-              </div>
-              <div className="form-group">
-                <label>Gender</label>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  {['Male', 'Female', 'Other'].map(g => (
-                    <div 
-                      key={g}
-                      onClick={() => setFormData({...formData, gender: g})}
-                      style={{
-                        flex: 1,
-                        padding: '0.75rem',
-                        textAlign: 'center',
-                        borderRadius: '0.5rem',
-                        cursor: 'pointer',
-                        border: '1px solid',
-                        borderColor: formData.gender === g ? 'var(--primary)' : 'var(--glass-border)',
-                        background: formData.gender === g ? 'rgba(0, 229, 255, 0.2)' : 'rgba(0,0,0,0.3)',
-                        transition: 'all 0.2s',
-                        color: 'white',
-                        fontWeight: formData.gender === g ? 600 : 400
-                      }}
-                    >
-                      {g}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                <button type="button" className="btn" style={{ flex: 1, background: 'rgba(255,255,255,0.1)', color: 'white' }} onClick={() => setShowModal(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Join</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {renderModal()}
     </div>
   );
 }
 
 const styles = {
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    minHeight: '100vh',
-    padding: '2rem',
-    maxWidth: '1200px',
-    margin: '0 auto',
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '4rem',
-  },
-  logo: {
-    fontSize: '2rem',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1rem',
-  },
-  logoImg: {
-    width: '140px',
-    height: '140px',
-    objectFit: 'contain',
-  },
-  main: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    textAlign: 'center',
-    marginTop: '2rem',
-  },
-  title: {
-    fontSize: '4rem',
-    fontWeight: 800,
-    marginBottom: '1rem',
-    background: 'linear-gradient(to right, #00e5ff, #743ad5)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-  },
-  subtitle: {
-    fontSize: '1.25rem',
-    color: 'var(--text-muted)',
-    maxWidth: '600px',
-    marginBottom: '4rem',
-    lineHeight: 1.6,
-  },
-  features: {
-    display: 'flex',
-    gap: '2rem',
-    marginBottom: '4rem',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-  },
-  featureCard: {
-    padding: '2rem',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '1rem',
-    width: '280px',
-    textAlign: 'center',
-  },
-  featureIcon: {
-    fontSize: '3rem',
-    color: 'var(--primary)',
-  },
-  ctaButton: {
-    padding: '1rem 3rem',
-    fontSize: '1.25rem',
-    borderRadius: '2rem',
-  }
+  container: { display: 'flex', flexDirection: 'column', minHeight: '100vh', padding: '2rem', maxWidth: '1200px', margin: '0 auto' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4rem' },
+  logo: { fontSize: '2.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' },
+  logoImg: { width: '60px', height: '60px', objectFit: 'contain' },
+  main: { display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginTop: '2rem' },
+  title: { fontSize: '4rem', fontWeight: 800, marginBottom: '1rem', background: 'linear-gradient(to right, #00e5ff, #743ad5)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' },
+  subtitle: { fontSize: '1.25rem', color: 'var(--text-muted)', maxWidth: '600px', marginBottom: '4rem', lineHeight: 1.6 },
+  features: { display: 'flex', gap: '2rem', marginBottom: '4rem', flexWrap: 'wrap', justifyContent: 'center' },
+  featureCard: { padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', width: '280px', textAlign: 'center' },
+  featureIcon: { fontSize: '3rem', color: 'var(--primary)' },
+  ctaButton: { padding: '1rem 3rem', fontSize: '1.25rem', borderRadius: '2rem' }
 };

@@ -46,13 +46,7 @@ header {
   align-items: center;
   justify-content: space-between;
   padding: 1rem 2rem;
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  border-radius: 1rem;
   margin-bottom: 1rem;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
 .logo {
@@ -159,10 +153,133 @@ header {
     width: 60px !important;
     height: 60px !important;
   }
+
+.avatar-hover-overlay:hover {
+  opacity: 1 !important;
+}
   .status-indicator {
     font-size: 0.8rem;
   }
   .leave-btn {
     padding: 0.4rem 0.75rem !important;
   }
+}
+
+/* Complex CSS Universe Loading Animation */
+.universe-loader {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  perspective: 800px;
+  transform-style: preserve-3d;
+  margin-bottom: 1rem;
+  transform: rotateX(-15deg) rotateY(15deg); /* Angle the whole system */
+}
+
+.universe-loader .planet {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) translateZ(0);
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  /* Semi-transparent center for a glass marble effect, using the new bright cyan to purple gradient */
+  background: radial-gradient(circle at 65% 35%, rgba(255, 255, 255, 0.8) 0%, rgba(21, 192, 251, 0.6) 30%, rgba(87, 99, 237, 0.8) 70%, rgba(60, 70, 190, 0.95) 100%);
+  backdrop-filter: blur(4px); /* Blurs the orbits that pass behind the planet */
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 
+    inset 25px -25px 40px rgba(40, 50, 160, 0.9), /* Deep purple/blue shadow */
+    inset -15px 15px 30px rgba(21, 192, 251, 0.7), /* Cyan rim light */
+    inset 0 0 10px rgba(255, 255, 255, 0.6), /* Inner glass reflection */
+    0 0 30px rgba(21, 192, 251, 0.5), /* Ambient cyan outer glow */
+    0 0 60px rgba(87, 99, 237, 0.5); /* Ambient purple outer glow */
+}
+
+/* Intense, sharp specular highlight (lens flare) */
+.universe-loader .planet::before {
+  content: '';
+  position: absolute;
+  top: 18%; left: 70%;
+  width: 15%; height: 15%;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 15px 5px #ffffff, 0 0 30px 15px #00e5ff;
+}
+
+/* Broad curved glass reflection */
+.universe-loader .planet::after {
+  content: '';
+  position: absolute;
+  top: 5%; left: 8%;
+  width: 65%; height: 45%;
+  border-radius: 50% / 40% 40% 60% 60%; /* Elliptical glass curve */
+  background: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.1) 40%, rgba(255,255,255,0) 100%);
+  transform: rotate(-30deg);
+}
+
+.universe-loader .orbit {
+  position: absolute;
+  top: 50%; left: 50%;
+  border-radius: 50%;
+  /* Very thin, delicate glowing lines */
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  transform-style: preserve-3d;
+  box-shadow: 0 0 5px rgba(0, 229, 255, 0.2), inset 0 0 5px rgba(0, 229, 255, 0.2);
+}
+
+.universe-loader .orbit .dot,
+.universe-loader .orbit .dot2 {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 6px 3px #ffffff, 0 0 15px 6px #00e5ff;
+}
+
+.universe-loader .orbit .dot { top: -2px; left: 50%; transform: translateX(-50%); }
+.universe-loader .orbit .dot2 { bottom: -2px; left: 50%; transform: translateX(-50%); }
+
+.universe-loader .orbit1 { width: 140px; height: 140px; border-color: rgba(160, 240, 255, 0.6); animation: orbit-spin-1 6s linear infinite; }
+.universe-loader .orbit2 { width: 110px; height: 110px; border-color: rgba(200, 245, 255, 0.4); animation: orbit-spin-2 5s linear infinite; }
+.universe-loader .orbit3 { width: 160px; height: 160px; border-color: rgba(160, 240, 255, 0.5); animation: orbit-spin-3 7s linear infinite; }
+.universe-loader .orbit4 { width: 130px; height: 130px; border-color: rgba(255, 255, 255, 0.4); animation: orbit-spin-4 4.5s linear infinite; }
+.universe-loader .orbit5 { width: 150px; height: 150px; border-color: rgba(200, 245, 255, 0.5); animation: orbit-spin-5 8s linear infinite; }
+
+@keyframes orbit-spin-1 {
+  0% { transform: translate(-50%, -50%) rotateX(65deg) rotateY(20deg) rotateZ(0deg); }
+  100% { transform: translate(-50%, -50%) rotateX(65deg) rotateY(20deg) rotateZ(360deg); }
+}
+@keyframes orbit-spin-2 {
+  0% { transform: translate(-50%, -50%) rotateX(75deg) rotateY(-10deg) rotateZ(0deg); }
+  100% { transform: translate(-50%, -50%) rotateX(75deg) rotateY(-10deg) rotateZ(360deg); }
+}
+@keyframes orbit-spin-3 {
+  0% { transform: translate(-50%, -50%) rotateX(50deg) rotateY(50deg) rotateZ(0deg); }
+  100% { transform: translate(-50%, -50%) rotateX(50deg) rotateY(50deg) rotateZ(360deg); }
+}
+@keyframes orbit-spin-4 {
+  0% { transform: translate(-50%, -50%) rotateX(80deg) rotateY(-20deg) rotateZ(0deg); }
+  100% { transform: translate(-50%, -50%) rotateX(80deg) rotateY(-20deg) rotateZ(-360deg); }
+}
+@keyframes orbit-spin-5 {
+  0% { transform: translate(-50%, -50%) rotateX(55deg) rotateY(-45deg) rotateZ(0deg); }
+  100% { transform: translate(-50%, -50%) rotateX(55deg) rotateY(-45deg) rotateZ(360deg); }
+}
+
+/* Neon Text Blink */
+.neon-text-blink {
+  font-weight: 600;
+  letter-spacing: 1px;
+  animation: text-blink-colors 2s infinite alternate ease-in-out;
+}
+
+@keyframes text-blink-colors {
+  0% { color: #15c0fb; text-shadow: 0 0 10px rgba(21, 192, 251, 0.6); }
+  100% { color: #5763ed; text-shadow: 0 0 10px rgba(87, 99, 237, 0.8); }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
 }

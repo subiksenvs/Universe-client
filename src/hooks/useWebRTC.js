@@ -5,30 +5,52 @@ const SIGNALING_SERVER = import.meta.env.VITE_SIGNALING_SERVER || 'http://localh
 
 
 
-export function useWebRTC(userInfo) {
+export function useWebRTC(userInfo, topic = 'global') {
   const [socket, setSocket] = useState(null);
   const [localStream, setLocalStream] = useState(null);
   const [remoteStream, setRemoteStream] = useState(null);
   const [status, setStatus] = useState('idle'); // idle, waiting, connected
   const [messages, setMessages] = useState([]);
   const [partnerInfo, setPartnerInfo] = useState(null);
+  const [hasMultipleCameras, setHasMultipleCameras] = useState(false);
+  const [isFrontCamera, setIsFrontCamera] = useState(true);
   
   const peerConnection = useRef(null);
   const currentRoom = useRef(null);
   const socketRef = useRef(null);
   const localStreamRef = useRef(null);
   const pendingCandidates = useRef([]);
+  const facingModeRef = useRef('user');
+
+  const checkCameras = async () => {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoInputs = devices.filter(device => device.kind === 'videoinput');
+      setHasMultipleCameras(videoInputs.length > 1);
+    } catch (err) {
+      console.warn("Could not enumerate devices", err);
+    }
+  };
+
+  useEffect(() => {
+    checkCameras();
+  }, []);
 
   const initializeMedia = async () => {
     let stream = localStreamRef.current;
     if (!stream) {
       try {
         try {
-          stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+          stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: facingModeRef.current }, 
+            audio: true 
+          });
         } catch (e1) {
           console.warn("Failed to get both video and audio. Trying video only.", e1);
           try {
-            stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            stream = await navigator.mediaDevices.getUserMedia({ 
+              video: { facingMode: facingModeRef.current } 
+            });
           } catch (e2) {
             console.warn("Failed to get video. Trying audio only.", e2);
             stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -36,11 +58,19 @@ export function useWebRTC(userInfo) {
         }
         setLocalStream(stream);
         localStreamRef.current = stream;
+
+        if (peerConnection.current) {
+          const videoTrack = stream.getVideoTracks()[0];
+          const sender = peerConnection.current.getSenders().find(s => s.track && s.track.kind === 'video');
+          if (sender && videoTrack) {
+            sender.replaceTrack(videoTrack);
+          }
+        }
       } catch (err) {
         console.error('Error accessing media devices.', err);
         setLocalStream(null);
         localStreamRef.current = null;
-        setMessages(prev => [...prev, { text: 'Camera access denied or unavailable. You will not send video.', sender: 'system' }]);
+        setMessages(prev => [...prev, { text: 'Camera access denied or unavailable.', sender: 'system' }]);
       }
     }
     return stream;
@@ -157,7 +187,7 @@ export function useWebRTC(userInfo) {
       }
       cleanupConnection();
       setStatus('waiting');
-      socket.emit('join_queue', userInfo);
+      socket.emit('join_queue', { userInfo, topic });
     });
 
     return () => {
@@ -242,7 +272,7 @@ export function useWebRTC(userInfo) {
     }
 
     setStatus('waiting');
-    socketRef.current.emit('join_queue', userInfo);
+    socketRef.current.emit('join_queue', { userInfo, topic });
   };
 
   const stopSearching = () => {
@@ -255,20 +285,39 @@ export function useWebRTC(userInfo) {
   };
 
   const sendMessage = (text) => {
-    if (currentRoom.current && text.trim()) {
+    if (!text.trim()) return;
+    if (status === 'connected' && currentRoom.current) {
       socketRef.current.emit('chat_message', { room: currentRoom.current, message: text });
       setMessages(prev => [...prev, { text, sender: 'self' }]);
     }
   };
 
+  const flipCamera = async () => {
+    const newMode = facingModeRef.current === 'user' ? 'environment' : 'user';
+    facingModeRef.current = newMode;
+    setIsFrontCamera(newMode === 'user');
+    
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach(t => t.stop());
+      localStreamRef.current = null;
+      setLocalStream(null);
+    }
+    
+    await initializeMedia();
+  };
+
   return {
+    socket,
     localStream,
     remoteStream,
     status,
     messages,
     partnerInfo,
+    hasMultipleCameras,
+    isFrontCamera,
     startSearching,
     stopSearching,
-    sendMessage
+    sendMessage,
+    flipCamera
   };
 }
