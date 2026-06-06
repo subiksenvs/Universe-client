@@ -74,30 +74,39 @@ export default function ChatRoom() {
     <div className="app-container">
       <header>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }} onClick={handleLeave}>
-          <img src="/logo.png" alt="Logo" className="header-logo-img" style={{ width: 50, height: 50, objectFit: 'contain' }} />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <span style={{ fontSize: '2rem', fontWeight: 800, background: 'linear-gradient(to right, var(--primary), var(--secondary))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Universe</span>
-            <span className="hide-on-mobile" style={{ fontSize: '1.25rem', fontWeight: 500, color: 'var(--text-muted)', textTransform: 'capitalize', marginTop: '0.4rem' }}>| {topic} Room</span>
-          </div>
+          <img src="/logo.png" alt="Logo" className="header-logo-img" style={{ width: 40, height: 40, objectFit: 'contain' }} />
+          <span style={{ fontSize: 'clamp(1.2rem, 4vw, 2rem)', fontWeight: 800, background: 'linear-gradient(to right, var(--primary), var(--secondary))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Universe</span>
+          <span className="hide-on-mobile" style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-muted)', textTransform: 'capitalize' }}>| {topic} Room</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <div className="status-indicator" style={{ 
+          <div className="status-indicator" style={{
             color: status === 'connected' ? 'var(--success)' : status === 'waiting' ? '#f59e0b' : 'var(--danger)',
             fontWeight: 600,
             display: 'flex',
             alignItems: 'center',
-            gap: '0.3rem'
+            gap: '0.3rem',
+            fontSize: 'clamp(0.75rem, 2.5vw, 1rem)',
+            whiteSpace: 'nowrap'
           }}>
             {status === 'connected' ? '● Connected' : status === 'waiting' ? '● Waiting...' : '● Offline'}
           </div>
-          <button className="btn leave-btn" style={{ background: 'rgba(255,255,255,0.1)', color: 'white', padding: '0.5rem 1rem' }} onClick={handleLeave}>
+          {partnerInfo && status === 'connected' && (
+            <button
+              className="btn"
+              style={{ background: 'rgba(255,255,255,0.1)', color: 'white', padding: '0.4rem 0.75rem', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
+              onClick={() => setShowProfile(true)}
+            >
+              <span className="hide-on-mobile">View </span>Profile
+            </button>
+          )}
+          <button className="btn leave-btn" style={{ background: 'rgba(255,255,255,0.1)', color: 'white', padding: '0.4rem 0.75rem' }} onClick={handleLeave}>
             <FiArrowLeft /> <span className="hide-on-mobile">Leave</span>
           </button>
         </div>
       </header>
-      
+
       <main className="main-content">
-        <VideoChat 
+        <VideoChat
           localStream={localStream}
           remoteStream={remoteStream}
           status={status}
@@ -108,18 +117,11 @@ export default function ChatRoom() {
           stopSearching={stopSearching}
           flipCamera={flipCamera}
         />
-        <ChatBox 
+        <ChatBox
           messages={messages}
           sendMessage={sendMessage}
           status={status}
         />
-        {partnerInfo && status === 'connected' && (
-          <div style={{ position: 'absolute', top: '15px', right: '15px', zIndex: 10 }}>
-            <button className="btn" style={{ background: 'rgba(0,0,0,0.6)', color: 'white', padding: '0.5rem 1rem', fontSize: '0.9rem', backdropFilter: 'blur(5px)' }} onClick={() => setShowProfile(true)}>
-              View Profile
-            </button>
-          </div>
-        )}
       </main>
 
       {showProfile && partnerInfo && (

@@ -74,17 +74,25 @@ export default function Home() {
 
           <form onSubmit={handleAuth} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             
+            {authMode === 'login' && (
+              <div className="form-group">
+                <label>Username or Email</label>
+                <input type="text" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} placeholder="you@example.com or Username" />
+              </div>
+            )}
+
+            {authMode === 'signup' && (
+              <div className="form-group">
+                <label>Email</label>
+                <input type="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} placeholder="you@example.com" />
+              </div>
+            )}
+
             {(authMode === 'login' || authMode === 'signup') && (
-              <>
-                <div className="form-group">
-                  <label>Username or Email</label>
-                  <input type="text" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} placeholder="you@example.com or Username" />
-                </div>
-                <div className="form-group">
-                  <label>Password</label>
-                  <input type="password" required value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} placeholder="••••••••" />
-                </div>
-              </>
+              <div className="form-group">
+                <label>Password</label>
+                <input type="password" required value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} placeholder="••••••••" />
+              </div>
             )}
 
             {(authMode === 'signup' || authMode === 'guest') && (
@@ -236,7 +244,7 @@ const styles = {
   container: { display: 'flex', flexDirection: 'column', minHeight: '100vh', padding: 'clamp(1rem, 4vw, 2rem)', maxWidth: '1200px', margin: '0 auto' },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' },
   logo: { fontSize: 'clamp(1.4rem, 5vw, 2.2rem)', display: 'flex', alignItems: 'center', gap: '0.4rem' },
-  logoImg: { width: 'clamp(36px, 6vw, 55px)', height: 'clamp(36px, 6vw, 55px)', objectFit: 'contain' },
+  logoImg: { width: 'clamp(60px, 10vw, 100px)', height: 'clamp(60px, 10vw, 100px)', objectFit: 'contain' },
   main: { display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' },
   title: { fontSize: 'clamp(1.8rem, 8vw, 4rem)', fontWeight: 800, marginBottom: '1rem', background: 'linear-gradient(to right, #00e5ff, #743ad5)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', lineHeight: 1.1, padding: '0 0.5rem' },
   subtitle: { fontSize: 'clamp(0.9rem, 3vw, 1.2rem)', color: 'var(--text-muted)', maxWidth: '600px', marginBottom: 'clamp(1.5rem, 5vw, 3rem)', lineHeight: 1.6, padding: '0 1rem' },

@@ -12,8 +12,12 @@ export default function VideoChat({ localStream, remoteStream, status, partnerIn
   }, [localStream]);
 
   useEffect(() => {
-    if (remoteVideoRef.current && remoteStream) {
-      remoteVideoRef.current.srcObject = remoteStream;
+    if (remoteVideoRef.current) {
+      if (remoteStream) {
+        remoteVideoRef.current.srcObject = remoteStream;
+      } else {
+        remoteVideoRef.current.srcObject = null;
+      }
     }
   }, [remoteStream]);
 

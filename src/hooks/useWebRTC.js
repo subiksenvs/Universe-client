@@ -254,13 +254,22 @@ export function useWebRTC(userInfo, topic = 'global') {
       peerConnection.current.close();
       peerConnection.current = null;
     }
-    setRemoteStream(null);
+    setRemoteStream(prev => {
+      if (prev) {
+        prev.getTracks().forEach(track => track.stop());
+      }
+      return null;
+    });
     currentRoom.current = null;
     setPartnerInfo(null);
     pendingCandidates.current = [];
   };
 
   const startSearching = async () => {
+    // Notify partner before cleaning up
+    if (currentRoom.current) {
+      socketRef.current.emit('leave_room', currentRoom.current);
+    }
     cleanupConnection();
     setMessages([]);
     
@@ -279,6 +288,7 @@ export function useWebRTC(userInfo, topic = 'global') {
     if (currentRoom.current) {
       socketRef.current.emit('leave_room', currentRoom.current);
     }
+    socketRef.current.emit('leave_topic');
     cleanupConnection();
     setStatus('idle');
     setMessages([{ text: 'You disconnected.', sender: 'system' }]);
