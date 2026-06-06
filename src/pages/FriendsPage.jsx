@@ -14,7 +14,9 @@ export default function FriendsPage() {
   const [activeFriend, setActiveFriend] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [incomingCall, setIncomingCall] = useState(null);
+  const [outgoingCall, setOutgoingCall] = useState(null);
   const socketRef = useRef(null);
+  const [globalSocket, setGlobalSocket] = useState(null);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -31,11 +33,22 @@ export default function FriendsPage() {
     const socketUrl = import.meta.env.VITE_SIGNALING_SERVER || 'http://localhost:4000';
     const socket = io(socketUrl);
     socketRef.current = socket;
+    setGlobalSocket(socket);
 
     socket.emit('register', currentUser.id);
 
     socket.on('incoming_call', (data) => {
       setIncomingCall(data);
+    });
+
+    socket.on('call_rejected', () => {
+      setOutgoingCall(null);
+      alert('Call was declined or user is unavailable.');
+    });
+
+    socket.on('call_error', (data) => {
+      setOutgoingCall(null);
+      alert(data.error);
     });
 
     socket.on('call_started', ({ roomId, partnerInfo }) => {
@@ -90,6 +103,29 @@ export default function FriendsPage() {
         </div>
       )}
 
+      {outgoingCall && (
+        <div className="modal-overlay" style={{ zIndex: 9999 }}>
+          <div className="modal-content glass-panel" style={{ textAlign: 'center', width: '90%', maxWidth: '300px' }}>
+            <h2 style={{ marginBottom: '1rem' }}>Calling...</h2>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+              <img src={outgoingCall.avatar || 'https://via.placeholder.com/50'} alt={outgoingCall.name} style={{ width: 60, height: 60, borderRadius: '50%', objectFit: 'cover' }} />
+              <div style={{ textAlign: 'left' }}>
+                <div style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>{outgoingCall.name}</div>
+                <div style={{ color: 'var(--text-muted)' }}>Ringing...</div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+              <button className="btn btn-danger" style={{ padding: '0.8rem 1.5rem' }} onClick={() => {
+                // We don't have a cancel_call event yet, so just hide UI
+                setOutgoingCall(null);
+              }}>
+                <FiX /> Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <header style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', flexShrink: 0 }}>
         <button
           className="btn"
@@ -125,9 +161,11 @@ export default function FriendsPage() {
               <DirectMessage
                 userInfo={currentUser}
                 friend={activeFriend}
+                globalSocket={globalSocket}
                 onClose={() => setActiveFriend(null)}
                 onCallFriend={() => {
                   if (socketRef.current) {
+                    setOutgoingCall(activeFriend);
                     socketRef.current.emit('request_call', { toId: activeFriend.id, fromInfo: currentUser });
                   }
                 }}

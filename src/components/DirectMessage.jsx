@@ -2,10 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FiSend, FiX, FiUserMinus, FiVideo } from 'react-icons/fi';
 import { io } from 'socket.io-client';
 
-export default function DirectMessage({ userInfo, friend, onClose, onCallFriend }) {
+export default function DirectMessage({ userInfo, friend, onClose, onCallFriend, globalSocket }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-  const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
 
   const handleRemoveFriend = async () => {
@@ -39,25 +38,25 @@ export default function DirectMessage({ userInfo, friend, onClose, onCallFriend 
     };
     fetchHistory();
 
-    const socketUrl = import.meta.env.VITE_SIGNALING_SERVER || 'http://localhost:4000';
-    const socket = io(socketUrl);
-    socketRef.current = socket;
+    if (!globalSocket) return;
 
-    socket.emit('register', userInfo.id);
-
-    socket.on('receive_direct_message', (msg) => {
+    const handleReceiveMessage = (msg) => {
       if (msg.sender === friend.id || msg.receiver === friend.id) {
         setMessages(prev => [...prev, msg]);
         setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
       }
-    });
+    };
 
-    return () => socket.disconnect();
-  }, [userInfo.id, friend.id]);
+    globalSocket.on('receive_direct_message', handleReceiveMessage);
+
+    return () => {
+      globalSocket.off('receive_direct_message', handleReceiveMessage);
+    };
+  }, [userInfo.id, friend.id, globalSocket]);
 
   const handleSend = (e) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || !globalSocket) return;
 
     const msgData = {
       senderId: userInfo.id,
@@ -66,7 +65,7 @@ export default function DirectMessage({ userInfo, friend, onClose, onCallFriend 
       timestamp: Date.now()
     };
 
-    socketRef.current.emit('send_direct_message', msgData);
+    globalSocket.emit('send_direct_message', msgData);
     
     // Optimistically add to UI
     const newMsg = { id: Date.now().toString(), sender: userInfo.id, receiver: friend.id, text: input, timestamp: Date.now() };
