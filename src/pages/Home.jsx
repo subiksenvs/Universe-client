@@ -130,9 +130,9 @@ export default function Home() {
           Universe
         </div>
         {currentUser ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            {error && <span style={{ color: '#ff4d4d', fontSize: '0.9rem' }}>{error}</span>}
-            <div className="glass-panel" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.5rem 1rem', borderRadius: '3rem', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            {error && <span style={{ color: '#ff4d4d', fontSize: '0.85rem', width: '100%', textAlign: 'right' }}>{error}</span>}
+            <div className="glass-panel" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.4rem 0.75rem', borderRadius: '3rem', border: '1px solid rgba(255,255,255,0.05)' }}>
               <div 
                 onClick={() => {
                   if (currentUser.isGuest) {
@@ -141,35 +141,34 @@ export default function Home() {
                     navigate('/profile');
                   }
                 }}
-                style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
               >
                 <div 
                   className="header-avatar"
-                  style={{ width: '40px', height: '40px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.2)', background: currentUser.avatar ? `url(${currentUser.avatar}) center/cover no-repeat` : 'linear-gradient(135deg, var(--primary), var(--secondary))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: 'bold', position: 'relative', overflow: 'hidden' }}
+                  style={{ width: '36px', height: '36px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.2)', background: currentUser.avatar ? `url(${currentUser.avatar}) center/cover no-repeat` : 'linear-gradient(135deg, var(--primary), var(--secondary))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', fontWeight: 'bold', position: 'relative', overflow: 'hidden', flexShrink: 0 }}
                 >
                   {!currentUser.avatar && currentUser.name.charAt(0).toUpperCase()}
-                  
                   <div className="avatar-hover-overlay" style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity 0.2s', fontSize: '1rem' }}>
                     <FiUser />
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                  <span style={{ fontWeight: 600, lineHeight: 1.2 }}>{currentUser.name}</span>
-                  {currentUser.isGuest && <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Guest</span>}
+                  <span style={{ fontWeight: 600, lineHeight: 1.2, fontSize: '0.9rem', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentUser.name}</span>
+                  {currentUser.isGuest && <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Guest</span>}
                 </div>
               </div>
 
-              <div style={{ width: '1px', height: '30px', background: 'rgba(255,255,255,0.1)' }}></div>
+              <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.1)' }}></div>
 
-              <button className="btn" style={{ background: 'transparent', color: '#ff4d4d', border: 'none', padding: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={handleLogout}>
-                <FiLogOut size={20} /> <span className="hide-on-mobile" style={{ fontWeight: 600 }}>Log Out</span>
+              <button className="btn" style={{ background: 'transparent', color: '#ff4d4d', border: 'none', padding: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }} onClick={handleLogout}>
+                <FiLogOut size={18} /> <span className="hide-on-mobile" style={{ fontWeight: 600 }}>Log Out</span>
               </button>
             </div>
             
             {!currentUser.isGuest && (
               <button 
                 className="btn btn-primary" 
-                style={{ padding: '0.5rem 1.5rem', borderRadius: '2rem', fontWeight: 600 }} 
+                style={{ padding: '0.4rem 1rem', borderRadius: '2rem', fontWeight: 600, fontSize: '0.9rem' }} 
                 onClick={() => navigate('/friends')}
               >
                 Friends
@@ -177,11 +176,11 @@ export default function Home() {
             )}
           </div>
         ) : (
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <button className="btn" style={{ background: 'transparent', border: '1px solid var(--primary)', color: 'var(--primary)' }} onClick={() => setAuthMode('login')}>
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <button className="btn" style={{ background: 'transparent', border: '1px solid var(--primary)', color: 'var(--primary)', padding: '0.5rem 1rem' }} onClick={() => setAuthMode('login')}>
               Log In
             </button>
-            <button className="btn btn-primary hide-on-mobile" onClick={() => setAuthMode('signup')}>
+            <button className="btn btn-primary" style={{ padding: '0.5rem 1rem' }} onClick={() => setAuthMode('signup')}>
               Sign Up
             </button>
           </div>
@@ -212,17 +211,17 @@ export default function Home() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', marginTop: '2rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', marginTop: '1rem', paddingBottom: '2rem' }}>
           {currentUser ? (
-            <button className="btn btn-primary" style={{ ...styles.ctaButton, padding: '1.5rem 4rem', fontSize: '1.5rem' }} onClick={() => navigate('/rooms')}>
+            <button className="btn btn-primary" style={styles.ctaBtn} onClick={() => navigate('/rooms')}>
               Enter Universe
             </button>
           ) : (
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-              <button className="btn btn-primary" style={{ ...styles.ctaButton, padding: '1.5rem 4rem', fontSize: '1.5rem' }} onClick={() => setAuthMode('signup')}>
+              <button className="btn btn-primary" style={styles.ctaBtn} onClick={() => setAuthMode('signup')}>
                 Start Chatting
               </button>
-              <button className="btn" style={{ ...styles.ctaButton, background: 'transparent', border: '2px solid var(--primary)', color: 'var(--primary)', padding: '1.5rem 4rem', fontSize: '1.5rem' }} onClick={() => setAuthMode('guest')}>
+              <button className="btn" style={{ ...styles.ctaBtn, background: 'transparent', border: '2px solid var(--primary)', color: 'var(--primary)' }} onClick={() => setAuthMode('guest')}>
                 Enter as Guest
               </button>
             </div>
@@ -236,15 +235,15 @@ export default function Home() {
 }
 
 const styles = {
-  container: { display: 'flex', flexDirection: 'column', minHeight: '100vh', padding: '2rem', maxWidth: '1200px', margin: '0 auto' },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4rem' },
-  logo: { fontSize: '2.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' },
-  logoImg: { width: '60px', height: '60px', objectFit: 'contain' },
-  main: { display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', marginTop: '2rem' },
-  title: { fontSize: '4rem', fontWeight: 800, marginBottom: '1rem', background: 'linear-gradient(to right, #00e5ff, #743ad5)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' },
-  subtitle: { fontSize: '1.25rem', color: 'var(--text-muted)', maxWidth: '600px', marginBottom: '4rem', lineHeight: 1.6 },
-  features: { display: 'flex', gap: '2rem', marginBottom: '4rem', flexWrap: 'wrap', justifyContent: 'center' },
-  featureCard: { padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', width: '280px', textAlign: 'center' },
-  featureIcon: { fontSize: '3rem', color: 'var(--primary)' },
-  ctaButton: { padding: '1rem 3rem', fontSize: '1.25rem', borderRadius: '2rem' }
+  container: { display: 'flex', flexDirection: 'column', minHeight: '100vh', padding: 'clamp(1rem, 4vw, 2rem)', maxWidth: '1200px', margin: '0 auto' },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' },
+  logo: { fontSize: 'clamp(1.4rem, 5vw, 2.2rem)', display: 'flex', alignItems: 'center', gap: '0.4rem' },
+  logoImg: { width: 'clamp(36px, 6vw, 55px)', height: 'clamp(36px, 6vw, 55px)', objectFit: 'contain' },
+  main: { display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' },
+  title: { fontSize: 'clamp(1.8rem, 8vw, 4rem)', fontWeight: 800, marginBottom: '1rem', background: 'linear-gradient(to right, #00e5ff, #743ad5)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', lineHeight: 1.1, padding: '0 0.5rem' },
+  subtitle: { fontSize: 'clamp(0.9rem, 3vw, 1.2rem)', color: 'var(--text-muted)', maxWidth: '600px', marginBottom: 'clamp(1.5rem, 5vw, 3rem)', lineHeight: 1.6, padding: '0 1rem' },
+  features: { display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap', justifyContent: 'center', width: '100%' },
+  featureCard: { padding: 'clamp(1rem, 3vw, 1.75rem)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', flex: '1 1 200px', maxWidth: '280px', textAlign: 'center' },
+  featureIcon: { fontSize: '2.5rem', color: 'var(--primary)' },
+  ctaBtn: { padding: 'clamp(0.75rem, 3vw, 1.2rem) clamp(2rem, 8vw, 4rem)', fontSize: 'clamp(1rem, 4vw, 1.4rem)', borderRadius: '2rem' }
 };

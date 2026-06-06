@@ -114,8 +114,8 @@ export default function Profile() {
   const displayAvatar = pendingAvatar || currentUser.avatar;
 
   return (
-    <div className="app-container" style={{ padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+    <div className="app-container" style={{ padding: 'clamp(0.75rem, 3vw, 2rem)', maxWidth: '600px', margin: '0 auto', height: '100dvh', overflowY: 'auto' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <button className="btn" style={{ background: 'rgba(255,255,255,0.1)', color: 'white', padding: '0.5rem 1rem' }} onClick={() => navigate('/')}>
             <FiArrowLeft /> Back
@@ -127,7 +127,7 @@ export default function Profile() {
         </button>
       </header>
 
-      <div className="glass-panel" style={{ padding: '2rem', borderRadius: '1rem' }}>
+      <div className="glass-panel" style={{ padding: 'clamp(1rem, 4vw, 2rem)', borderRadius: '1rem' }}>
         
         {error && <div style={{ color: '#ff4d4d', marginBottom: '1rem', textAlign: 'center', background: 'rgba(255,0,0,0.1)', padding: '0.5rem', borderRadius: '0.5rem' }}>{error}</div>}
         
