@@ -43,7 +43,7 @@ export default function ChatRoom() {
 
   const handleSendFriendRequest = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_SIGNALING_SERVER || 'http://localhost:4000';
+      const apiUrl = import.meta.env.VITE_SIGNALING_SERVER || (window.location.hostname === 'localhost' ? 'http://localhost:4000' : `http://${window.location.hostname}:4000`);
       const response = await fetch(`${apiUrl}/api/friends/request`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

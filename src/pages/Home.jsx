@@ -37,7 +37,7 @@ export default function Home() {
 
     try {
       const endpoint = authMode === 'login' ? '/api/login' : '/api/signup';
-      const apiUrl = import.meta.env.VITE_SIGNALING_SERVER || 'http://localhost:4000';
+      const apiUrl = import.meta.env.VITE_SIGNALING_SERVER || (window.location.hostname === 'localhost' ? 'http://localhost:4000' : `http://${window.location.hostname}:4000`);
       
       const response = await fetch(`${apiUrl}${endpoint}`, {
         method: 'POST',

@@ -6,7 +6,7 @@ export default function FriendsList({ userInfo, onSelectFriend }) {
 
   const fetchFriends = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_SIGNALING_SERVER || 'http://localhost:4000';
+      const apiUrl = import.meta.env.VITE_SIGNALING_SERVER || (window.location.hostname === 'localhost' ? 'http://localhost:4000' : `http://${window.location.hostname}:4000`);
       const response = await fetch(`${apiUrl}/api/friends/${userInfo.id}`);
       if (response.ok) {
         const data = await response.json();
@@ -25,7 +25,7 @@ export default function FriendsList({ userInfo, onSelectFriend }) {
 
   const handleRequest = async (action, fromId) => {
     try {
-      const apiUrl = import.meta.env.VITE_SIGNALING_SERVER || 'http://localhost:4000';
+      const apiUrl = import.meta.env.VITE_SIGNALING_SERVER || (window.location.hostname === 'localhost' ? 'http://localhost:4000' : `http://${window.location.hostname}:4000`);
       await fetch(`${apiUrl}/api/friends/${action}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

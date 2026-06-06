@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 
-const SIGNALING_SERVER = import.meta.env.VITE_SIGNALING_SERVER || 'http://localhost:4000';
+const SIGNALING_SERVER = import.meta.env.VITE_SIGNALING_SERVER || (window.location.hostname === 'localhost' ? 'http://localhost:4000' : `http://${window.location.hostname}:4000`);
 
 export function usePrivateWebRTC(userInfo, roomId) {
   const [socket, setSocket] = useState(null);

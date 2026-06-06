@@ -30,11 +30,15 @@ export default function FriendsPage() {
 
   useEffect(() => {
     if (!currentUser) return;
-    const socketUrl = import.meta.env.VITE_SIGNALING_SERVER || 'http://localhost:4000';
+    const socketUrl = import.meta.env.VITE_SIGNALING_SERVER || (window.location.hostname === 'localhost' ? 'http://localhost:4000' : `http://${window.location.hostname}:4000`);
     const socket = io(socketUrl);
     socketRef.current = socket;
     setGlobalSocket(socket);
 
+    socket.on('connect', () => {
+      socket.emit('register', currentUser.id);
+    });
+    // Also emit immediately in case it's already connected (though usually it connects asynchronously)
     socket.emit('register', currentUser.id);
 
     socket.on('incoming_call', (data) => {

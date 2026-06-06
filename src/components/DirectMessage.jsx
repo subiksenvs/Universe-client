@@ -9,7 +9,7 @@ export default function DirectMessage({ userInfo, friend, onClose, onCallFriend,
 
   const handleRemoveFriend = async () => {
     try {
-      const apiUrl = import.meta.env.VITE_SIGNALING_SERVER || 'http://localhost:4000';
+      const apiUrl = import.meta.env.VITE_SIGNALING_SERVER || (window.location.hostname === 'localhost' ? 'http://localhost:4000' : `http://${window.location.hostname}:4000`);
       const res = await fetch(`${apiUrl}/api/friends/remove`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -18,14 +18,19 @@ export default function DirectMessage({ userInfo, friend, onClose, onCallFriend,
       if (res.ok) {
         onClose(); 
         window.location.reload(); 
+      } else {
+        alert('Failed to remove friend. The database connection might be temporarily down.');
       }
-    } catch(e) { console.error(e); }
+    } catch(e) { 
+      console.error(e);
+      alert('Network error when trying to remove friend.');
+    }
   };
 
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_SIGNALING_SERVER || 'http://localhost:4000';
+        const apiUrl = import.meta.env.VITE_SIGNALING_SERVER || (window.location.hostname === 'localhost' ? 'http://localhost:4000' : `http://${window.location.hostname}:4000`);
         const response = await fetch(`${apiUrl}/api/messages/${userInfo.id}/${friend.id}`);
         if (response.ok) {
           const history = await response.json();
